@@ -1,6 +1,8 @@
 import os
+from dotenv import load_dotenv
 from google import genai
 
+load_dotenv()
 def generate_risk_explanation(student_data, risk_label, user_question):
     # Initialize the client. It automatically looks for GEMINI_API_KEY in your .env or system variables.
     client = genai.Client(
@@ -52,4 +54,4 @@ Required Response Format:
     )
 
     # Returns the actual text response to be sent back to Role 3's front-end
-    return interaction.steps[-1].text
+    return interaction.output_text
