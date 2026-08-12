@@ -5,3 +5,6 @@ matplotlib
 joblib
 faker
 jupyter
+streamlit
+google-genai
+python-dotenv
