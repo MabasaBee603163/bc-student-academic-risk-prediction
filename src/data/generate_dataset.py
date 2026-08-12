@@ -226,35 +226,39 @@ def calculate_risk(
     """
     Derive risk from the main academic-risk predictors.
 
-    Programme/specialisation are context only — risk is driven by engagement
-    and performance signals.
+    Programme/specialisation are context only. Academic averages carry the
+    largest weight so critically low marks cannot be cancelled out by
+    merely "okay" attendance / completion defaults.
     """
     score = 0.0
 
-    # Core predictors
-    score += (100.0 - engagement["attendance"]) * 0.28
-    score += (100.0 - engagement["assignment_completion"]) * 0.22
-    score += (100.0 - academics["test_average"]) * 0.18
-    score += (100.0 - academics["midyear_average"]) * 0.12
-    score += max(0, 10 - engagement["bc_connect_activity"]) * 1.8
-    score += engagement["missed_assessments"] * 4.5
-    score += academics["failed_modules"] * 9.0
-
-    score += (100.0 - academics["overall_average"]) * 0.10
+    # Academic performance (primary) — % shortfall from 100
+    score += (100.0 - academics["overall_average"]) * 0.28
+    score += (100.0 - academics["midyear_average"]) * 0.18
+    score += (100.0 - academics["test_average"]) * 0.16
+    score += (100.0 - academics["assignment_average"]) * 0.10
+    score += (100.0 - academics["practical_average"]) * 0.08
+    score += academics["failed_modules"] * 7.0
 
     if academics["registered_modules"] > 0:
         pass_ratio = academics["passed_modules"] / academics["registered_modules"]
-        score += (1.0 - pass_ratio) * 12.0
+        score += (1.0 - pass_ratio) * 10.0
+
+    # Engagement (secondary) — still matters, but cannot dominate marks
+    score += (100.0 - engagement["attendance"]) * 0.12
+    score += (100.0 - engagement["assignment_completion"]) * 0.10
+    score += max(0, 10 - engagement["bc_connect_activity"]) * 1.0
+    score += engagement["missed_assessments"] * 3.0
 
     if demographics["year_of_study"] == "First Year":
         score += 2.0
 
-    score += float(np.random.normal(0.0, 3.0))
+    score += float(np.random.normal(0.0, 2.5))
     score = float(np.clip(score, 0.0, 100.0))
 
-    if score < 28:
+    if score < 32:
         label = "Low"
-    elif score < 55:
+    elif score < 60:
         label = "Medium"
     else:
         label = "High"
